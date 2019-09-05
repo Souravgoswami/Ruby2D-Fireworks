@@ -53,7 +53,7 @@ def main
 		end
 
 		fireworks.each_with_index do |particles, findex|
-			particles[0].tap { |fr| sub_particles.push(Square.new(x: rand(fr.x - 5 .. fr.x + 5), y: fr.y, size: 1, color: [rand, rand, rand, 0.75])) if fr && fr.radius > 1 }
+			particles[0].tap { |fr| sub_particles.push(Square.new(x: rand(fr.x - 5 .. fr.x + 5), y: fr.y, size: 1, color: [rand, rand, rand, 0.75])) if fr&.radius&.> 1 }
 			particles_size = particles.size - 1
 			x, y, activated = *pos.at(findex)
 
@@ -65,7 +65,7 @@ def main
 					p.x, p.y, p.opacity = p.x + Math.cos(i) * i.fdiv(particles_size), p.y + Math.sin(i) * i.fdiv(particles_size), p.opacity - 0.005
 
 					p.radius -= 0.05 unless p.radius < 0.3
-					p.y, p.color = p.y + 0.75, [rand, rand, rand, p.opacity] if p.radius < 1
+					p.y, p.color = p.y + i.fdiv(particles_size), [rand, rand, rand, p.opacity] if p.radius < 1
 				end
 
 				p.remove && particles.delete(p) if p.opacity <= 0
