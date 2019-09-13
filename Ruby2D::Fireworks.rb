@@ -1,11 +1,11 @@
-#!/usr/bin/ruby -w
-# Frozen_string_literal: true
+#!/usr/bin/env ruby
+# Frozen_String_Literal: true
 $VERBOSE = true
 GC.start(full_mark: true, immediate_sweep: true)
 require 'ruby2d'
 
 W, H = 640, 480
-set width: W, height: H, fps_cap: 100, resizable: true, background: '#ffffff'
+set width: W, height: H, fps_cap: 100, resizable: true, background: '#FFFFFF'
 
 Array.define_method(:indexes) do |&block|
 	i, arr_size = -1, size
@@ -14,7 +14,7 @@ end
 
 fireworks, pos, sub_particles = [], [], []
 Rectangle.new(width: W, height: H, color: '#FFFFFF', x: 0, y: 0)
-stars = Array.new(H.fdiv(2)) { |i| Square.new(x: rand(W), y: i, size: rand(1 .. 2), color: [rand, rand, rand, 1], opacity: 1 - i.fdiv(H / 1.5)) }
+stars = Array.new(H.fdiv(2)) { |i| Square.new(x: rand(W), y: i, size: rand(1 .. 2), color: [rand, rand, rand, 1], opacity: 1 - i.fdiv(H / 1.9)) }
 
 fps = Text.new(??, font: File.join(__dir__, 'Baumans-Regular.ttf'))
 drag, enable_auto, auto = false, false, 1
@@ -92,8 +92,8 @@ on(:key_down) do |k|
 end
 
 on(:key_held) do |k|
-	new_fireworks.(rand(W), rand(H)) if k.key.eql?(?r.freeze)
-	new_fireworks.(get(:mouse_x), get(:mouse_y)) if k.key.eql?('space'.freeze)
+	new_fireworks.(rand(W), rand(H)) if k.key.eql?(?r)
+	new_fireworks.(get(:mouse_x), get(:mouse_y)) if k.key.eql?('space')
 end
 
 show
