@@ -1,13 +1,15 @@
-#!/usr/bin/ruby -w
+#!/usr/bin/env ruby
+# Frozen_string_literal: true
+$VERBOSE = true
 GC.start(full_mark: true, immediate_sweep: true)
 require 'ruby2d'
 
 W, H = 640, 480
-set width: W, height: H, fps_cap: 100, resizable: true
+set width: W, height: H, fps_cap: 100, resizable: true, background: '#ffffff'
 
 Array.define_method(:indexes) do |&block|
 	i, arr_size = -1, size
-	[].tap { |x| x << i if block === at(i) while (i = i.next) < arr_size }
+	[].tap { |x| x << i if block === at(i) while (i += 1) < arr_size }
 end
 
 def main
@@ -38,18 +40,19 @@ def main
 		new_fireworks.(rand(W), rand(H)) if enable_auto && get(:fps) > 20
 		stars.sample.z = [-1, 1].sample
 
-		clean.call if fireworks.flatten.size.zero?
-
-		get(:fps).round.tap do |x|
-			fps.text = "FPS: #{x}  | Spawned Fireworks: #{fireworks.size} | Particles: #{fireworks.reduce(0) { |x, y| x += y.size } + sub_particles.size }"
-			fps.color = x < 16 ? '#FF5555' : x < 30 ? '#5555FF' : x < 46 ? '#FFFF55' : '#55FF55'
-		end
-
 		fireworks.indexes(&:empty?).each { |x| pos.delete_at(x) && fireworks.delete_at(x) }
 
 		sub_particles.each_with_index do |x, i|
 			x.x, x.y, x.color = x.x + Math.cos(i), x.y + Math.atan(i), [rand, rand, rand, x.opacity - 0.025]
 			x.remove && sub_particles.delete(x) if x.opacity < 0
+		end
+
+		particles = fireworks.reduce(0) { |x, y| x += y.size } + sub_particles.size
+		clean.call if particles == 0
+
+		get(:fps).round.tap do |x|
+			fps.text = "FPS: #{x}  | Spawned Fireworks: #{fireworks.size} | Particles: #{particles}"
+			fps.color = x < 16 ? '#FF5555' : x < 30 ? '#5555FF' : x < 46 ? '#FFFF55' : '#55FF55'
 		end
 
 		fireworks.each_with_index do |particles, findex|
@@ -84,14 +87,14 @@ def main
 	on(:key_down) do |k|
 		if k.key.eql?('escape') then close
 		elsif k.key.eql?(?c) then clean.call
-		elsif k.key.eql?(?a) then enable_auto = (auto += 1).modulo(2).zero?
+		elsif k.key.eql?(?a) then enable_auto = (auto += 1).modulo(2) == 0
 		elsif k.key.eql?(?s) then Window.screenshot("#{Time.new.strftime("#{File.basename(__FILE__).capitalize}-Screenshot-%H:%M:%S:%N")}.png")
 		end
 	end
 
 	on(:key_held) do |k|
-		new_fireworks.(rand(W), rand(H)) if k.key.eql?(?r)
-		new_fireworks.(get(:mouse_x), get(:mouse_y)) if k.key.eql?('space')
+		new_fireworks.(rand(W), rand(H)) if k.key.eql?(?r.freeze)
+		new_fireworks.(get(:mouse_x), get(:mouse_y)) if k.key.eql?('space'.freeze)
 	end
 end
 
